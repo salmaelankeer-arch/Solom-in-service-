@@ -4,60 +4,21 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>سولوم في الخدمة | Cloud Edition 🫡</title>
+    <title>سولوم في الخدمة | Cloud 🫡</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <!-- Firebase Legacy SDKs for compatibility -->
+    <!-- Firebase Realtime Database SDK (Compat) - التعديل الصحيح -->
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-database-compat.js"></script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;900&display=swap');
-        
-        :root {
-            --primary: #6366f1;
-            --glass-border: rgba(255, 255, 255, 0.08);
-        }
-
-        body { 
-            font-family: 'Cairo', sans-serif; 
-            background: linear-gradient(135deg, #0f172a 0%, #1e1b4b 100%); 
-            color: #f8fafc;
-            min-height: 100vh;
-        }
-
-        .glass-card {
-            background: rgba(255, 255, 255, 0.03);
-            backdrop-filter: blur(12px);
-            border: 1px solid var(--glass-border);
-            border-radius: 2rem;
-        }
-
-        .modern-input {
-            background: rgba(255, 255, 255, 0.05);
-            border: 1px solid var(--glass-border);
-            color: white;
-            transition: all 0.3s ease;
-        }
-
-        .modern-input:focus {
-            border-color: var(--primary);
-            box-shadow: 0 0 20px rgba(99, 102, 241, 0.2);
-        }
-
-        .tab-btn.active {
-            background: var(--primary);
-            box-shadow: 0 10px 25px -5px rgba(99, 102, 241, 0.4);
-            transform: translateY(-2px);
-        }
-
-        .stat-card { cursor: pointer; transition: all 0.3s ease; }
-        .stat-card.active {
-            border: 2px solid var(--primary);
-            background: rgba(99, 102, 241, 0.1);
-        }
-
+        :root { --primary: #6366f1; --glass-border: rgba(255, 255, 255, 0.08); }
+        body { font-family: 'Cairo', sans-serif; background: linear-gradient(135deg, #0f172a 0%, #1e1b4b 100%); color: #f8fafc; min-height: 100vh; }
+        .glass-card { background: rgba(255, 255, 255, 0.03); backdrop-filter: blur(12px); border: 1px solid var(--glass-border); border-radius: 2rem; }
+        .modern-input { background: rgba(255, 255, 255, 0.05); border: 1px solid var(--glass-border); color: white; transition: all 0.3s ease; }
+        .tab-btn.active { background: var(--primary); box-shadow: 0 10px 25px -5px rgba(99, 102, 241, 0.4); transform: translateY(-2px); }
+        .stat-card.active { border: 2px solid var(--primary); background: rgba(99, 102, 241, 0.1); }
         .student-card { animation: fadeIn 0.4s ease-out forwards; }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
-        
         select option { background: #0f172a; color: white; }
     </style>
 </head>
@@ -68,88 +29,62 @@
         <header class="flex justify-between items-center mb-10">
             <div>
                 <h1 class="text-3xl font-black text-white flex items-center gap-3">
-                    <span class="bg-indigo-600 p-2 rounded-xl">🫡</span>
-                    سولوم في الخدمة
+                    <span class="bg-indigo-600 p-2 rounded-xl">🫡</span> سولوم في الخدمة
                 </h1>
-                <p class="text-slate-400 font-bold mt-1 text-sm">نظام المزامنة السحابية متصل ✅</p>
+                <p class="text-slate-400 font-bold mt-1 text-sm" id="syncStatus">جاري الاتصال بالسحاب... ⏳</p>
             </div>
             <button onclick="toggleSettings()" class="bg-white/5 p-4 rounded-2xl border border-white/10 hover:bg-white/10 transition-all">
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4" />
-                </svg>
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4" /></svg>
             </button>
         </header>
 
-        <!-- Input -->
+        <!-- Input Box -->
         <section class="glass-card p-8 mb-8">
-            <div class="flex items-center gap-4 mb-6">
-                <span class="w-8 h-8 flex items-center justify-center bg-indigo-500 rounded-lg text-sm font-black">1</span>
-                <h2 class="text-lg font-black">إضافة بيانات المتدرب 📥</h2>
-            </div>
-            <textarea id="smartPaste" rows="3" 
-                class="w-full modern-input rounded-2xl p-5 text-sm outline-none mb-4 placeholder:text-slate-500" 
-                placeholder="الصقي نص جوجل فورم هنا..."></textarea>
-            <button onclick="processPaste()" 
-                class="w-full bg-indigo-600 hover:bg-indigo-700 text-white py-4 rounded-2xl font-black transition active:scale-95 shadow-lg shadow-indigo-500/20">
-                تأكيد الإضافة في النظام
-            </button>
+            <textarea id="smartPaste" rows="3" class="w-full modern-input rounded-2xl p-5 text-sm outline-none mb-4 placeholder:text-slate-500" placeholder="الصقي نص جوجل فورم هنا..."></textarea>
+            <button onclick="processPaste()" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white py-4 rounded-2xl font-black transition shadow-lg">تأكيد الإضافة في السحاب 📥</button>
         </section>
 
-        <!-- Stats Filters -->
+        <!-- Stats -->
         <section class="grid grid-cols-2 gap-4 mb-8">
-            <div onclick="setHardwareFilter('yes')" id="filter-yes" class="stat-card glass-card p-6 flex flex-col items-center border-emerald-500/10">
-                <span class="text-3xl font-black text-emerald-400 mb-1" id="stat-laptop-yes">0</span>
-                <span class="text-[10px] font-black text-slate-400 uppercase tracking-widest">معاهم لابتوب 💻</span>
+            <div onclick="setHardwareFilter('yes')" id="filter-yes" class="stat-card glass-card p-6 flex flex-col items-center cursor-pointer transition">
+                <span class="text-3xl font-black text-emerald-400" id="stat-laptop-yes">0</span>
+                <span class="text-[10px] font-black text-slate-400 uppercase">معاهم لابتوب 💻</span>
             </div>
-            <div onclick="setHardwareFilter('no')" id="filter-no" class="stat-card glass-card p-6 flex flex-col items-center border-rose-500/10">
-                <span class="text-3xl font-black text-rose-400 mb-1" id="stat-laptop-no">0</span>
-                <span class="text-[10px] font-black text-slate-400 uppercase tracking-widest">بدون لابتوب 📱</span>
+            <div onclick="setHardwareFilter('no')" id="filter-no" class="stat-card glass-card p-6 flex flex-col items-center cursor-pointer transition">
+                <span class="text-3xl font-black text-rose-400" id="stat-laptop-no">0</span>
+                <span class="text-[10px] font-black text-slate-400 uppercase">بدون لابتوب 📱</span>
             </div>
         </section>
 
         <!-- Navigation Tabs -->
         <nav class="flex gap-2 p-2 glass-card rounded-3xl mb-8">
-            <button onclick="setTab('all')" id="tab-all" class="tab-btn active flex-1 py-4 rounded-2xl text-xs font-black transition-all">الكل (<span id="count-all">0</span>)</button>
-            <button onclick="setTab('now')" id="tab-now" class="tab-btn flex-1 py-4 rounded-2xl text-xs font-black transition-all">المجموعة الحالية (<span id="count-now">0</span>)</button>
-            <button onclick="setTab('later')" id="tab-later" class="tab-btn flex-1 py-4 rounded-2xl text-xs font-black transition-all">في الإجازة (<span id="count-later">0</span>)</button>
+            <button onclick="setTab('all')" id="tab-all" class="tab-btn active flex-1 py-4 rounded-2xl text-xs font-black">الكل (<span id="count-all">0</span>)</button>
+            <button onclick="setTab('now')" id="tab-now" class="tab-btn flex-1 py-4 rounded-2xl text-xs font-black">المجموعة الحالية (<span id="count-now">0</span>)</button>
+            <button onclick="setTab('later')" id="tab-later" class="tab-btn flex-1 py-4 rounded-2xl text-xs font-black">الإجازة (<span id="count-later">0</span>)</button>
         </nav>
-
-        <!-- Batch Action -->
-        <div id="multiSendBox" class="hidden mb-8">
-            <button onclick="sendGroupLink()" class="w-full bg-emerald-500/20 border border-emerald-500/40 text-emerald-400 p-5 rounded-2xl font-black hover:bg-emerald-500 hover:text-white transition">
-                إرسال الرابط لكل الطلاب المعروضين حالياً 🚀
-            </button>
-        </div>
 
         <!-- Student List -->
         <div id="studentsContainer" class="grid grid-cols-1 md:grid-cols-2 gap-4"></div>
-        <div id="emptyState" class="hidden glass-card py-20 text-center text-slate-500 font-bold italic">لا يوجد بيانات تطابق هذا الاختيار</div>
+        <div id="emptyState" class="hidden glass-card py-20 text-center text-slate-500 font-bold italic">لا يوجد بيانات حالياً</div>
     </div>
 
     <!-- Settings Modal -->
     <div id="settingsModal" class="fixed inset-0 bg-black/80 backdrop-blur-md z-50 hidden flex items-center justify-center p-6">
         <div class="glass-card w-full max-w-md p-8 border-white/10 shadow-2xl">
-            <div class="flex justify-between items-center mb-8">
-                <h2 class="text-xl font-black">الإعدادات ⚙️</h2>
-                <button onclick="toggleSettings()" class="text-slate-400 hover:text-white transition">✕</button>
-            </div>
-            <div class="space-y-6">
-                <div>
-                    <label class="text-[10px] font-black text-indigo-400 block mb-2 uppercase">رابط جروب الواتساب</label>
-                    <input type="text" id="groupLink" class="w-full modern-input p-4 rounded-xl text-sm outline-none" placeholder="https://chat.whatsapp.com/...">
-                </div>
-                <div>
-                    <label class="text-[10px] font-black text-indigo-400 block mb-2 uppercase">رسالة الترحيب ({name} للاسم، {link} للرابط)</label>
-                    <textarea id="msgTemplate" rows="4" class="w-full modern-input p-4 rounded-xl text-sm outline-none"></textarea>
-                </div>
-                <button onclick="saveSettings()" class="w-full bg-indigo-600 text-white font-black py-4 rounded-xl hover:bg-indigo-700 transition">حفظ الإعدادات</button>
-                <button onclick="clearAllData()" class="w-full text-rose-500 text-xs font-bold opacity-50 hover:opacity-100 transition mt-4">مسح كافة البيانات نهائياً</button>
+            <h2 class="text-xl font-black mb-6">الإعدادات السحابية ⚙️</h2>
+            <div class="space-y-4">
+                <input type="text" id="groupLink" class="w-full modern-input p-4 rounded-xl text-sm outline-none" placeholder="رابط جروب الواتساب">
+                <textarea id="welcomeTemplate" rows="2" class="w-full modern-input p-4 rounded-xl text-sm outline-none" placeholder="رسالة الترحيب الأولى (استخدمي {name})"></textarea>
+                <textarea id="linkTemplate" rows="2" class="w-full modern-input p-4 rounded-xl text-sm outline-none" placeholder="رسالة اللينك (استخدمي {name} و {link})"></textarea>
+                <button onclick="saveSettings()" class="w-full bg-indigo-600 text-white font-black py-4 rounded-xl">حفظ الإعدادات</button>
+                <button onclick="toggleSettings()" class="w-full text-slate-400 text-xs mt-2">إغلاق</button>
+                <button onclick="clearAllData()" class="w-full text-rose-500/30 text-[9px] mt-6">مسح السحاب بالكامل</button>
             </div>
         </div>
     </div>
 
     <script>
-        // --- 1. Firebase Configuration ---
+        // --- 1. Firebase Configuration (المطابقة لصورتك) ---
         const firebaseConfig = {
             apiKey: "AIzaSyC3GQccPFLVHFi8aVmJ3lmeC8UHRT_tNwQ",
             authDomain: "solom-feecf.firebaseapp.com",
@@ -157,54 +92,49 @@
             projectId: "solom-feecf",
             storageBucket: "solom-feecf.firebasestorage.app",
             messagingSenderId: "516763285608",
-            appId: "1:516763285608:web:ee218fd56f6d56775863dd",
-            measurementId: "G-S1CFDVTYCJ"
+            appId: "1:516763285608:web:ee218fd56f6d56775863dd"
         };
 
-        // Initialize Firebase
         firebase.initializeApp(firebaseConfig);
-        const db = firebase.firestore();
-        const collectionRef = db.collection('students');
+        const db = firebase.database();
+        const studentsRef = db.ref('students');
 
-        // --- 2. State & Settings ---
         let students = [];
         let currentTab = 'all';
         let hardwareFilter = 'all';
         let settings = JSON.parse(localStorage.getItem('soloum_settings')) || {
             groupLink: '',
-            messageTemplate: 'أهلاً يا {name}! مبروك قبولك معانا في التدريب 🎨 دا لينك الجروب: {link}'
+            welcomeTemplate: 'أهلاً يا {name}! مبروك قبولك 🎨',
+            linkTemplate: 'يا {name} دا لينك الجروب: {link}'
         };
 
-        // --- 3. Data Synchronization ---
-        collectionRef.orderBy('createdAt', 'desc').onSnapshot(snapshot => {
-            students = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+        // --- 2. Realtime Sync ---
+        studentsRef.on('value', (snapshot) => {
+            const data = snapshot.val();
+            students = data ? Object.keys(data).map(key => ({ id: key, ...data[key] })) : [];
+            document.getElementById('syncStatus').innerText = "متصل ومزامن ✅";
             render();
-        }, err => console.error("Firebase Error:", err));
+        });
 
-        // --- 4. Logic Functions ---
-        window.processPaste = async () => {
+        window.processPaste = () => {
             const raw = document.getElementById('smartPaste').value;
             if (!raw.trim()) return;
-
             try {
                 const nameMatch = raw.match(/الاسم؟\s*(?:\*)?\s*([\s\S]*?)\s*(?:الكلية|رقم|$)/i);
                 const phoneMatch = raw.match(/رقم التليفون\s*\(?\s*واتساب\s*\)?\s*(?:\*)?\s*([\s\S]*?)\s*(?:هل|$)/i);
                 const laptopMatch = raw.match(/جهاز لابتوب؟\s*(?:\*)?\s*(نعم|لا)/i);
-                const altMatch = raw.match(/استخدام بديل\s*(?:\*)?\s*([\s\S]*?)\s*(?:هل|$)/i);
-
+                
                 const name = nameMatch ? nameMatch[1].trim().split('\n')[0] : "متدرب جديد";
                 let phone = phoneMatch ? phoneMatch[1].trim().replace(/\D/g, '') : "";
                 if (phone.startsWith('0') && phone.length === 11) phone = '2' + phone;
 
-                await collectionRef.add({
+                studentsRef.push({
                     name, phone,
                     hasLaptop: laptopMatch ? (laptopMatch[1].trim() === "نعم") : false,
-                    alternative: altMatch ? altMatch[1].trim() : '',
                     timing: '', sent: false, createdAt: Date.now()
                 });
-
                 document.getElementById('smartPaste').value = '';
-            } catch (e) { alert("تأكدي من النص المنسوخ يا فنانة"); }
+            } catch (e) { alert("تأكدي من النص المنسوخ"); }
         };
 
         window.render = () => {
@@ -218,7 +148,6 @@
                 return tMatch && hMatch;
             });
 
-            // Update UI Counters
             document.getElementById('count-all').innerText = students.length;
             document.getElementById('count-now').innerText = students.filter(s => s.timing === 'now').length;
             document.getElementById('count-later').innerText = students.filter(s => s.timing === 'later').length;
@@ -228,28 +157,26 @@
             if (filtered.length === 0) empty.classList.remove('hidden');
             else {
                 empty.classList.add('hidden');
-                filtered.forEach(s => {
+                filtered.sort((a,b)=>b.createdAt - a.createdAt).forEach(s => {
                     const card = document.createElement('div');
                     card.className = "student-card glass-card p-6 flex flex-col justify-between";
                     card.innerHTML = `
-                        <div class="mb-4">
+                        <div>
                             <div class="flex justify-between items-start mb-4">
                                 <h3 class="font-black text-white text-lg">${s.name}</h3>
                                 ${s.sent ? '<span class="text-[9px] text-emerald-400 font-black">وصلت 🫡</span>' : ''}
                             </div>
-                            <div class="flex items-center gap-2 mb-4 text-xs font-bold text-slate-400">
-                                <span>${s.hasLaptop ? '💻 لابتوب متاح' : '📱 يحتاج بديل'}</span>
-                            </div>
-                            <select onchange="updateStudent('${s.id}', 'timing', this.value)" 
-                                class="w-full bg-white/5 border border-white/10 p-3 rounded-xl text-xs font-bold outline-none mb-4">
-                                <option value="" ${!s.timing ? 'selected' : ''}>📍 تحديد المجموعة</option>
-                                <option value="now" ${s.timing === 'now' ? 'selected' : ''}>المجموعة الحالية</option>
-                                <option value="later" ${s.timing === 'later' ? 'selected' : ''}>في الإجازة</option>
+                            <p class="text-[10px] text-slate-500 mb-4">${s.hasLaptop ? '💻 لابتوب' : '📱 بديل'}</p>
+                            <select onchange="updateStudent('${s.id}', 'timing', this.value)" class="w-full bg-white/5 border border-white/10 p-3 rounded-xl text-xs font-bold mb-4 outline-none">
+                                <option value="" ${!s.timing ? 'selected' : ''}>📍 المجموعة</option>
+                                <option value="now" ${s.timing === 'now' ? 'selected' : ''}>الحالية</option>
+                                <option value="later" ${s.timing === 'later' ? 'selected' : ''}>الإجازة</option>
                             </select>
                         </div>
-                        <div class="flex gap-2 pt-4 border-t border-white/5">
-                            <button onclick="sendWhatsApp('${s.id}')" class="flex-1 bg-white/5 hover:bg-indigo-600 py-3 rounded-xl text-xs font-black transition">واتساب</button>
-                            <button onclick="deleteStudent('${s.id}')" class="px-4 bg-rose-500/10 text-rose-500 rounded-xl hover:bg-rose-500 transition">✕</button>
+                        <div class="grid grid-cols-2 gap-2">
+                            <button onclick="sendMsg('${s.id}', 'welcome')" class="bg-indigo-600/20 hover:bg-indigo-600 py-3 rounded-xl text-[10px] font-black transition">1. ترحيب 👋</button>
+                            <button onclick="sendMsg('${s.id}', 'link')" class="bg-emerald-600/20 hover:bg-emerald-600 py-3 rounded-xl text-[10px] font-black transition">2. اللينك 🔗</button>
+                            <button onclick="deleteStudent('${s.id}')" class="col-span-2 mt-2 text-[9px] text-rose-500/40 hover:text-rose-500 transition">✕ حذف من النظام</button>
                         </div>
                     `;
                     container.appendChild(card);
@@ -257,14 +184,15 @@
             }
         };
 
-        window.updateStudent = (id, field, value) => {
-            collectionRef.doc(id).update({ [field]: value });
-        };
+        window.updateStudent = (id, field, value) => studentsRef.child(id).update({ [field]: value });
 
-        window.sendWhatsApp = (id) => {
+        window.sendMsg = (id, type) => {
             const s = students.find(x => x.id === id);
-            const msg = settings.messageTemplate.replace(/{name}/g, s.name).replace(/{link}/g, settings.groupLink);
-            collectionRef.doc(id).update({ sent: true });
+            let msg = type === 'welcome' 
+                ? settings.welcomeTemplate.replace(/{name}/g, s.name)
+                : settings.linkTemplate.replace(/{name}/g, s.name).replace(/{link}/g, settings.groupLink);
+            
+            if (type === 'link') updateStudent(id, 'sent', true);
             window.open(`https://api.whatsapp.com/send?phone=${s.phone}&text=${encodeURIComponent(msg)}`, '_blank');
         };
 
@@ -272,7 +200,6 @@
             currentTab = t;
             document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
             document.getElementById('tab-' + t).classList.add('active');
-            document.getElementById('multiSendBox').style.display = (t === 'all') ? 'none' : 'block';
             render();
         };
 
@@ -286,34 +213,22 @@
         window.toggleSettings = () => {
             document.getElementById('settingsModal').classList.toggle('hidden');
             document.getElementById('groupLink').value = settings.groupLink;
-            document.getElementById('msgTemplate').value = settings.messageTemplate;
+            document.getElementById('welcomeTemplate').value = settings.welcomeTemplate;
+            document.getElementById('linkTemplate').value = settings.linkTemplate;
         };
 
         window.saveSettings = () => {
-            settings.groupLink = document.getElementById('groupLink').value;
-            settings.messageTemplate = document.getElementById('msgTemplate').value;
+            settings = {
+                groupLink: document.getElementById('groupLink').value,
+                welcomeTemplate: document.getElementById('welcomeTemplate').value,
+                linkTemplate: document.getElementById('linkTemplate').value
+            };
             localStorage.setItem('soloum_settings', JSON.stringify(settings));
             toggleSettings();
         };
 
-        window.deleteStudent = (id) => { if (confirm("حذف الطالب؟")) collectionRef.doc(id).delete(); };
-
-        window.clearAllData = async () => {
-            if (confirm("سيتم مسح السحاب بالكامل! هل أنتِ متأكدة؟")) {
-                const batch = db.batch();
-                students.forEach(s => batch.delete(collectionRef.doc(s.id)));
-                await batch.commit();
-            }
-        };
-
-        window.sendGroupLink = () => {
-            const list = students.filter(s => s.timing === currentTab);
-            if (list.length === 0) return;
-            if (confirm(`بدء إرسال لـ ${list.length} طالب؟`)) {
-                list.forEach((s, i) => setTimeout(() => sendWhatsApp(s.id), i * 3500));
-            }
-        };
+        window.deleteStudent = (id) => { if(confirm("حذف الطالب؟")) studentsRef.child(id).remove(); };
+        window.clearAllData = () => { if(confirm("حذف كل السحاب؟")) studentsRef.remove(); };
     </script>
 </body>
 </html>
-
