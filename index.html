@@ -4,17 +4,13 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>سولوم في الخدمة | منظم مجموعات الجرافيك</title>
+    <title></title>سولوم في الخدمة |  </title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <script src="https://www.gstatic.com/firebasejs/11.6.1/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/11.6.1/firebase-auth-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore-compat.js"></script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;900&family=Outfit:wght@400;700;900&display=swap');
         
         :root {
             --primary: #6366f1;
-            --secondary: #4f46e5;
             --dark-bg: #0f172a;
             --card-bg: rgba(255, 255, 255, 0.03);
             --glass-border: rgba(255, 255, 255, 0.08);
@@ -25,6 +21,7 @@
             background: linear-gradient(135deg, #0f172a 0%, #1e1b4b 100%); 
             color: #f8fafc;
             min-height: 100vh;
+            margin: 0;
         }
 
         .glass-card {
@@ -48,7 +45,7 @@
         }
 
         .tab-btn {
-            position: relative;
+            background: rgba(255, 255, 255, 0.02);
             transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
         }
 
@@ -63,14 +60,13 @@
             transition: all 0.3s ease;
         }
 
-        .stat-card:hover { transform: translateY(-5px); }
         .stat-card.active {
             border: 2px solid var(--primary);
             background: rgba(99, 102, 241, 0.1);
         }
 
         .student-card {
-            animation: fadeIn 0.5s ease backwards;
+            animation: fadeIn 0.4s ease-out forwards;
         }
 
         @keyframes fadeIn {
@@ -78,31 +74,275 @@
             to { opacity: 1; transform: translateY(0); }
         }
 
-        .shimmer {
-            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.05), transparent);
-            background-size: 200% 100%;
-            animation: shimmer 2s infinite;
-        }
-
-        @keyframes shimmer {
-            0% { background-position: -200% 0; }
-            100% { background-position: 200% 0; }
-        }
+        select option { background: #1e1b4b; color: white; }
     </style>
 </head>
 <body class="pb-24">
 
     <div class="max-w-4xl mx-auto p-4 md:p-8">
-        <!-- Header Section -->
+        <!-- Header -->
         <header class="flex justify-between items-center mb-10">
             <div>
-                <h1 class="text-3xl font-black tracking-tight text-white flex items-center gap-3">
+                <h1 class="text-3xl font-black text-white flex items-center gap-3">
                     <span class="bg-indigo-600 p-2 rounded-xl">🫡</span>
                     سولوم في الخدمة
                 </h1>
-                <p class="text-slate-400 font-bold mt-1 text-sm">نظام إدارة التدريب الذكي</p>
+                <p class="text-slate-400 font-bold mt-1 text-sm tracking-wide">الإصدار المستقل (حفظ محلي)</p>
             </div>
-            <button onclick="toggleSettings()" class="bg-white/5 p-4 rounded-2xl border border-white/10 hover:bg-white/10 transition-all group">
+            <button onclick="toggleSettings()" class="bg-white/5 p-4 rounded-2xl border border-white/10 hover:bg-white/10 transition-all">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4" />
+                </svg>
+            </button>
+        </header>
+
+        <!-- Input -->
+        <section class="glass-card p-8 mb-8">
+            <div class="flex items-center gap-4 mb-6">
+                <span class="w-8 h-8 flex items-center justify-center bg-indigo-500 rounded-lg text-sm font-black">1</span>
+                <h2 class="text-lg font-black">إضافة بيانات المتدرب 📥</h2>
+            </div>
+            <textarea id="smartPaste" rows="3" 
+                class="w-full modern-input rounded-2xl p-5 text-sm outline-none mb-4" 
+                placeholder="الصقي نص جوجل فورم هنا..."></textarea>
+            <button onclick="processPaste()" 
+                class="w-full bg-indigo-600 hover:bg-indigo-700 text-white py-4 rounded-2xl font-black transition active:scale-95 shadow-lg shadow-indigo-500/20">
+                حفظ البيانات فوراً
+            </button>
+        </section>
+
+        <!-- Stats -->
+        <section class="grid grid-cols-2 gap-4 mb-8">
+            <div onclick="setHardwareFilter('yes')" id="filter-yes" class="stat-card glass-card p-6 flex flex-col items-center border-emerald-500/10">
+                <span class="text-3xl font-black text-emerald-400 mb-1" id="stat-laptop-yes">0</span>
+                <span class="text-[10px] font-black text-slate-400 uppercase">لابتوب متاح 💻</span>
+            </div>
+            <div onclick="setHardwareFilter('no')" id="filter-no" class="stat-card glass-card p-6 flex flex-col items-center border-rose-500/10">
+                <span class="text-3xl font-black text-rose-400 mb-1" id="stat-laptop-no">0</span>
+                <span class="text-[10px] font-black text-slate-400 uppercase">بدون لابتوب 📱</span>
+            </div>
+        </section>
+
+        <!-- Tabs -->
+        <nav class="flex gap-2 p-2 glass-card rounded-3xl mb-8">
+            <button onclick="setTab('all')" id="tab-all" class="tab-btn active flex-1 py-4 rounded-2xl text-xs font-black">الكل (<span id="count-all">0</span>)</button>
+            <button onclick="setTab('now')" id="tab-now" class="tab-btn flex-1 py-4 rounded-2xl text-xs font-black">المجموعة الحالية (<span id="count-now">0</span>)</button>
+            <button onclick="setTab('later')" id="tab-later" class="tab-btn flex-1 py-4 rounded-2xl text-xs font-black">الإجازة (<span id="count-later">0</span>)</button>
+        </nav>
+
+        <!-- Multi Action -->
+        <div id="multiSendBox" class="hidden mb-8">
+            <button onclick="sendGroupLink()" class="w-full bg-emerald-500/20 border border-emerald-500/40 text-emerald-400 p-5 rounded-2xl font-black hover:bg-emerald-500 hover:text-white transition">
+                إرسال الرابط لكل الطلاب في هذه القائمة 🚀
+            </button>
+        </div>
+
+        <!-- List -->
+        <div id="studentsContainer" class="grid grid-cols-1 md:grid-cols-2 gap-4"></div>
+        <div id="emptyState" class="hidden glass-card py-20 text-center text-slate-500 font-bold">القائمة فارغة يا هندسة</div>
+    </div>
+
+    <!-- Modal -->
+    <div id="settingsModal" class="fixed inset-0 bg-black/80 backdrop-blur-md z-50 hidden flex items-center justify-center p-6">
+        <div class="glass-card w-full max-w-md p-8 border-white/10 shadow-2xl">
+            <div class="flex justify-between items-center mb-8">
+                <h2 class="text-xl font-black">الإعدادات ⚙️</h2>
+                <button onclick="toggleSettings()" class="text-slate-400 hover:text-white">✕</button>
+            </div>
+            <div class="space-y-6">
+                <div>
+                    <label class="text-[10px] font-black text-indigo-400 block mb-2 uppercase">رابط الواتساب</label>
+                    <input type="text" id="groupLink" class="w-full modern-input p-4 rounded-xl text-sm outline-none" placeholder="https://chat.whatsapp.com/...">
+                </div>
+                <div>
+                    <label class="text-[10px] font-black text-indigo-400 block mb-2 uppercase">رسالة الترحيب</label>
+                    <textarea id="msgTemplate" rows="4" class="w-full modern-input p-4 rounded-xl text-sm outline-none"></textarea>
+                </div>
+                <button onclick="saveSettings()" class="w-full bg-indigo-600 text-white font-black py-4 rounded-xl">حفظ الإعدادات</button>
+                <button onclick="clearAllData()" class="w-full text-rose-500 text-xs font-bold opacity-50 hover:opacity-100 transition">حذف جميع البيانات</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Data Management (LocalStorage Version)
+        let students = JSON.parse(localStorage.getItem('soloum_data')) || [];
+        let settings = JSON.parse(localStorage.getItem('soloum_settings')) || {
+            groupLink: '',
+            messageTemplate: 'أهلاً يا {name}! مبروك قبولك معانا 🎨 دا لينك الجروب: {link}'
+        };
+        
+        let currentTab = 'all';
+        let hardwareFilter = 'all';
+
+        function saveData() {
+            localStorage.setItem('soloum_data', JSON.stringify(students));
+            render();
+        }
+
+        window.processPaste = () => {
+            const raw = document.getElementById('smartPaste').value;
+            if (!raw.trim()) return;
+
+            try {
+                const nameMatch = raw.match(/الاسم؟\s*(?:\*)?\s*([\s\S]*?)\s*(?:الكلية|رقم|$)/i);
+                const phoneMatch = raw.match(/رقم التليفون\s*\(?\s*واتساب\s*\)?\s*(?:\*)?\s*([\s\S]*?)\s*(?:هل|$)/i);
+                const laptopMatch = raw.match(/جهاز لابتوب؟\s*(?:\*)?\s*(نعم|لا)/i);
+                
+                const name = nameMatch ? nameMatch[1].trim().split('\n')[0] : "متدرب جديد";
+                let phone = phoneMatch ? phoneMatch[1].trim().replace(/\D/g, '') : "";
+                if (phone.startsWith('0')) phone = '2' + phone;
+                if (phone.length === 11) phone = '2' + phone;
+
+                const newStudent = {
+                    id: Date.now().toString(),
+                    name, phone,
+                    hasLaptop: laptopMatch ? (laptopMatch[1].trim() === "نعم") : false,
+                    alternative: '',
+                    timing: '',
+                    sent: false,
+                    createdAt: Date.now()
+                };
+
+                students.push(newStudent);
+                saveData();
+                document.getElementById('smartPaste').value = '';
+            } catch (e) { alert("تأكدي من النص المنسوخ"); }
+        };
+
+        window.render = () => {
+            const container = document.getElementById('studentsContainer');
+            const empty = document.getElementById('emptyState');
+            container.innerHTML = '';
+
+            const filtered = students.filter(s => {
+                let tMatch = (currentTab === 'all' || s.timing === currentTab);
+                let hMatch = (hardwareFilter === 'all' || (hardwareFilter === 'yes' ? s.hasLaptop : !s.hasLaptop));
+                return tMatch && hMatch;
+            }).sort((a,b) => b.createdAt - a.createdAt);
+
+            // Update Counts
+            document.getElementById('count-all').innerText = students.length;
+            document.getElementById('count-now').innerText = students.filter(s => s.timing === 'now').length;
+            document.getElementById('count-later').innerText = students.filter(s => s.timing === 'later').length;
+            document.getElementById('stat-laptop-yes').innerText = students.filter(s => s.hasLaptop).length;
+            document.getElementById('stat-laptop-no').innerText = students.filter(s => !s.hasLaptop).length;
+
+            if (filtered.length === 0) empty.classList.remove('hidden');
+            else {
+                empty.classList.add('hidden');
+                filtered.forEach(s => {
+                    const card = document.createElement('div');
+                    card.className = "student-card glass-card p-6 border-white/5 flex flex-col justify-between";
+                    card.innerHTML = `
+                        <div class="mb-4">
+                            <div class="flex justify-between items-start mb-4">
+                                <h3 class="font-black text-white text-lg">${s.name}</h3>
+                                ${s.sent ? '<span class="text-[8px] bg-emerald-500/20 text-emerald-400 px-2 py-1 rounded-md font-black italic">SENT</span>' : ''}
+                            </div>
+                            <div class="flex items-center gap-3 mb-4 text-xs">
+                                <span class="p-2 bg-white/5 rounded-lg">${s.hasLaptop ? '💻' : '📱'}</span>
+                                <span class="text-slate-400 font-bold">${s.hasLaptop ? 'لابتوب متاح' : 'يحتاج بديل'}</span>
+                            </div>
+                            ${!s.hasLaptop ? `
+                                <input type="text" value="${s.alternative || ''}" 
+                                    onchange="updateStudent('${s.id}', 'alternative', this.value)"
+                                    placeholder="اكتبي البديل هنا..."
+                                    class="w-full modern-input p-3 rounded-xl text-xs outline-none mb-4">
+                            ` : ''}
+                            <select onchange="updateStudent('${s.id}', 'timing', this.value)" 
+                                class="w-full bg-white/5 border border-white/10 p-3 rounded-xl text-xs font-bold outline-none">
+                                <option value="" ${!s.timing ? 'selected' : ''}>تحديد المجموعة</option>
+                                <option value="now" ${s.timing === 'now' ? 'selected' : ''}>المجموعة الحالية</option>
+                                <option value="later" ${s.timing === 'later' ? 'selected' : ''}>في الإجازة</option>
+                            </select>
+                        </div>
+                        <div class="flex gap-2 pt-4 border-t border-white/5">
+                            <button onclick="sendWhatsApp('${s.id}')" class="flex-1 bg-white/5 hover:bg-indigo-600 py-3 rounded-xl text-xs font-black transition">واتساب</button>
+                            <button onclick="deleteStudent('${s.id}')" class="px-4 bg-rose-500/10 text-rose-500 rounded-xl hover:bg-rose-500 hover:text-white transition">✕</button>
+                        </div>
+                    `;
+                    container.appendChild(card);
+                });
+            }
+        };
+
+        window.updateStudent = (id, field, value) => {
+            const idx = students.findIndex(s => s.id === id);
+            if (idx > -1) {
+                students[idx][field] = value;
+                saveData();
+            }
+        };
+
+        window.sendWhatsApp = (id) => {
+            const s = students.find(x => x.id === id);
+            if (!s) return;
+            const msg = settings.messageTemplate.replace(/{name}/g, s.name).replace(/{link}/g, settings.groupLink);
+            updateStudent(id, 'sent', true);
+            window.open(`https://api.whatsapp.com/send?phone=${s.phone}&text=${encodeURIComponent(msg)}`, '_blank');
+        };
+
+        window.setTab = (t) => {
+            currentTab = t;
+            document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+            document.getElementById('tab-' + t).classList.add('active');
+            document.getElementById('multiSendBox').style.display = (t === 'all') ? 'none' : 'block';
+            render();
+        };
+
+        window.setHardwareFilter = (v) => {
+            hardwareFilter = (hardwareFilter === v) ? 'all' : v;
+            document.querySelectorAll('.stat-card').forEach(c => c.classList.remove('active'));
+            if (hardwareFilter !== 'all') document.getElementById('filter-' + hardwareFilter).classList.add('active');
+            render();
+        };
+
+        window.toggleSettings = () => {
+            const m = document.getElementById('settingsModal');
+            m.classList.toggle('hidden');
+            document.getElementById('groupLink').value = settings.groupLink;
+            document.getElementById('msgTemplate').value = settings.messageTemplate;
+        };
+
+        window.saveSettings = () => {
+            settings.groupLink = document.getElementById('groupLink').value;
+            settings.messageTemplate = document.getElementById('msgTemplate').value;
+            localStorage.setItem('soloum_settings', JSON.stringify(settings));
+            toggleSettings();
+        };
+
+        window.deleteStudent = (id) => {
+            if (confirm("حذف الطالب؟")) {
+                students = students.filter(s => s.id !== id);
+                saveData();
+            }
+        };
+
+        window.clearAllData = () => {
+            if (confirm("حذف كل البيانات؟")) {
+                students = [];
+                saveData();
+            }
+        };
+
+        window.sendGroupLink = () => {
+            const list = students.filter(s => s.timing === currentTab);
+            if (list.length === 0) return;
+            if (confirm(`بدء إرسال لـ ${list.length} طالب؟`)) {
+                list.forEach((s, i) => {
+                    setTimeout(() => sendWhatsApp(s.id), i * 3000);
+                });
+            }
+        };
+
+        // Initial Render
+        render();
+    </script>
+</body>
+</html>
+
+```
                 <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 group-rotate-45 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
                 </svg>
@@ -427,6 +667,4 @@
     </script>
 </body>
 </html>
-
-```
 
