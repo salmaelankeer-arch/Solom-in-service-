@@ -6,7 +6,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>سولوم في الخدمة | Cloud 🫡</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <!-- Firebase Realtime Database SDK (Compat) - التعديل الصحيح -->
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-database-compat.js"></script>
     <style>
@@ -15,76 +14,114 @@
         body { font-family: 'Cairo', sans-serif; background: linear-gradient(135deg, #0f172a 0%, #1e1b4b 100%); color: #f8fafc; min-height: 100vh; }
         .glass-card { background: rgba(255, 255, 255, 0.03); backdrop-filter: blur(12px); border: 1px solid var(--glass-border); border-radius: 2rem; }
         .modern-input { background: rgba(255, 255, 255, 0.05); border: 1px solid var(--glass-border); color: white; transition: all 0.3s ease; }
+        .modern-input:focus { border-color: var(--primary); background: rgba(255, 255, 255, 0.1); }
         .tab-btn.active { background: var(--primary); box-shadow: 0 10px 25px -5px rgba(99, 102, 241, 0.4); transform: translateY(-2px); }
-        .stat-card.active { border: 2px solid var(--primary); background: rgba(99, 102, 241, 0.1); }
-        .student-card { animation: fadeIn 0.4s ease-out forwards; }
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
-        select option { background: #0f172a; color: white; }
+        .paid-badge { background: #10b981; color: white; padding: 2px 8px; border-radius: 99px; font-size: 10px; font-weight: bold; }
+        .search-bar { position: sticky; top: 10px; z-index: 40; }
+        .btn-welcome { background: rgba(16, 185, 129, 0.15); color: #10b981; border: 1px solid rgba(16, 185, 129, 0.3); }
+        .count-badge { background: rgba(255,255,255,0.1); padding: 1px 6px; border-radius: 6px; margin-right: 4px; font-size: 9px; }
     </style>
 </head>
-<body class="pb-24">
+<body class="pb-24 px-4">
 
-    <div class="max-w-4xl mx-auto p-4 md:p-8">
+    <div class="max-w-4xl mx-auto pt-8">
         <!-- Header -->
-        <header class="flex justify-between items-center mb-10">
+        <header class="flex justify-between items-center mb-6">
             <div>
-                <h1 class="text-3xl font-black text-white flex items-center gap-3">
-                    <span class="bg-indigo-600 p-2 rounded-xl">🫡</span> سولوم في الخدمة
+                <h1 class="text-2xl font-black text-white flex items-center gap-2">
+                    <span class="bg-indigo-600 p-2 rounded-xl text-xl">🫡</span> سولوم في الخدمة
                 </h1>
-                <p class="text-slate-400 font-bold mt-1 text-sm" id="syncStatus">جاري الاتصال بالسحاب... ⏳</p>
+                <p class="text-slate-400 font-bold mt-1 text-[10px]" id="syncStatus">جاري المزامنة... ⏳</p>
             </div>
-            <button onclick="toggleSettings()" class="bg-white/5 p-4 rounded-2xl border border-white/10 hover:bg-white/10 transition-all">
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4" /></svg>
+            <button onclick="toggleSettings()" class="bg-white/5 p-3 rounded-2xl border border-white/10">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4" /></svg>
             </button>
         </header>
 
+        <!-- Search -->
+        <div class="search-bar mb-6">
+            <div class="glass-card flex items-center px-4 py-2 shadow-2xl">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" /></svg>
+                <input type="text" id="searchInput" oninput="renderStudents()" placeholder="ابحثي بالاسم أو الرقم..." class="bg-transparent border-none w-full p-2 text-sm outline-none text-white placeholder:text-slate-500">
+            </div>
+        </div>
+
         <!-- Input Box -->
-        <section class="glass-card p-8 mb-8">
-            <textarea id="smartPaste" rows="3" class="w-full modern-input rounded-2xl p-5 text-sm outline-none mb-4 placeholder:text-slate-500" placeholder="الصقي نص جوجل فورم هنا..."></textarea>
-            <button onclick="processPaste()" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white py-4 rounded-2xl font-black transition shadow-lg">تأكيد الإضافة في السحاب 📥</button>
+        <section class="glass-card p-6 mb-8 border-dashed border-indigo-500/30">
+            <textarea id="smartPaste" rows="2" class="w-full modern-input rounded-2xl p-4 text-xs outline-none mb-3 placeholder:text-slate-500" placeholder="الصقي استجابة الطالب هنا..."></textarea>
+            <button onclick="processPaste()" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white py-3 rounded-xl font-black transition text-sm">تأكيد الإضافة للسحاب 📥</button>
         </section>
 
         <!-- Stats -->
         <section class="grid grid-cols-2 gap-4 mb-8">
-            <div onclick="setHardwareFilter('yes')" id="filter-yes" class="stat-card glass-card p-6 flex flex-col items-center cursor-pointer transition">
-                <span class="text-3xl font-black text-emerald-400" id="stat-laptop-yes">0</span>
-                <span class="text-[10px] font-black text-slate-400 uppercase">معاهم لابتوب 💻</span>
+            <div onclick="setHardwareFilter('yes')" id="filter-yes" class="glass-card p-4 flex flex-col items-center cursor-pointer hover:bg-indigo-500/10 transition border-transparent border-2">
+                <span class="text-2xl font-black text-emerald-400" id="stat-laptop-yes">0</span>
+                <span class="text-[10px] font-black text-slate-400">لابتوب ✅</span>
             </div>
-            <div onclick="setHardwareFilter('no')" id="filter-no" class="stat-card glass-card p-6 flex flex-col items-center cursor-pointer transition">
-                <span class="text-3xl font-black text-rose-400" id="stat-laptop-no">0</span>
-                <span class="text-[10px] font-black text-slate-400 uppercase">بدون لابتوب 📱</span>
+            <div onclick="setHardwareFilter('no')" id="filter-no" class="glass-card p-4 flex flex-col items-center cursor-pointer hover:bg-rose-500/10 transition border-transparent border-2">
+                <span class="text-2xl font-black text-rose-400" id="stat-laptop-no">0</span>
+                <span class="text-[10px] font-black text-slate-400">بدون / بديل 📱</span>
             </div>
         </section>
 
         <!-- Navigation Tabs -->
-        <nav class="flex gap-2 p-2 glass-card rounded-3xl mb-8">
-            <button onclick="setTab('all')" id="tab-all" class="tab-btn active flex-1 py-4 rounded-2xl text-xs font-black">الكل (<span id="count-all">0</span>)</button>
-            <button onclick="setTab('now')" id="tab-now" class="tab-btn flex-1 py-4 rounded-2xl text-xs font-black">المجموعة الحالية (<span id="count-now">0</span>)</button>
-            <button onclick="setTab('later')" id="tab-later" class="tab-btn flex-1 py-4 rounded-2xl text-xs font-black">الإجازة (<span id="count-later">0</span>)</button>
+        <nav class="flex gap-2 p-1.5 glass-card rounded-2xl mb-8">
+            <button onclick="setTab('all')" id="tab-all" class="tab-btn active flex-1 py-3 rounded-xl text-[10px] font-black">
+                الكل <span id="count-all" class="count-badge">0</span>
+            </button>
+            <button onclick="setTab('soon')" id="tab-soon" class="tab-btn flex-1 py-3 rounded-xl text-[10px] font-black">
+                القريبة <span id="count-soon" class="count-badge">0</span>
+            </button>
+            <button onclick="setTab('vacation')" id="tab-vacation" class="tab-btn flex-1 py-3 rounded-xl text-[10px] font-black">
+                الإجازة <span id="count-vacation" class="count-badge">0</span>
+            </button>
         </nav>
 
-        <!-- Student List -->
-        <div id="studentsContainer" class="grid grid-cols-1 md:grid-cols-2 gap-4"></div>
-        <div id="emptyState" class="hidden glass-card py-20 text-center text-slate-500 font-bold italic">لا يوجد بيانات حالياً</div>
+        <!-- List -->
+        <div id="studentsContainer" class="space-y-4"></div>
+        <div id="emptyState" class="hidden glass-card py-20 text-center text-slate-500 font-bold italic">لا توجد بيانات تطابق البحث</div>
+    </div>
+
+    <!-- Modal for Alternative Hardware -->
+    <div id="altModal" class="fixed inset-0 bg-black/80 backdrop-blur-md z-[100] hidden flex items-center justify-center p-6">
+        <div class="glass-card w-full max-sm p-6 border-white/10 shadow-2xl">
+            <h2 class="text-lg font-black mb-4">تعديل بيانات الجهاز 📱</h2>
+            <input type="text" id="altInput" class="w-full modern-input p-4 rounded-xl text-sm outline-none mb-4" placeholder="الجهاز البديل...">
+            <div class="flex gap-2">
+                <button onclick="saveAltHardware()" class="flex-1 bg-indigo-600 text-white font-black py-3 rounded-xl">حفظ</button>
+                <button onclick="closeAltModal()" class="flex-1 bg-white/10 text-white py-3 rounded-xl">إلغاء</button>
+            </div>
+        </div>
     </div>
 
     <!-- Settings Modal -->
     <div id="settingsModal" class="fixed inset-0 bg-black/80 backdrop-blur-md z-50 hidden flex items-center justify-center p-6">
-        <div class="glass-card w-full max-w-md p-8 border-white/10 shadow-2xl">
-            <h2 class="text-xl font-black mb-6">الإعدادات السحابية ⚙️</h2>
+        <div class="glass-card w-full max-w-md p-8 border-white/10 shadow-2xl overflow-y-auto max-h-[90vh]">
+            <h2 class="text-xl font-black mb-6">الإعدادات ⚙️</h2>
             <div class="space-y-4">
-                <input type="text" id="groupLink" class="w-full modern-input p-4 rounded-xl text-sm outline-none" placeholder="رابط جروب الواتساب">
-                <textarea id="welcomeTemplate" rows="2" class="w-full modern-input p-4 rounded-xl text-sm outline-none" placeholder="رسالة الترحيب الأولى (استخدمي {name})"></textarea>
-                <textarea id="linkTemplate" rows="2" class="w-full modern-input p-4 rounded-xl text-sm outline-none" placeholder="رسالة اللينك (استخدمي {name} و {link})"></textarea>
-                <button onclick="saveSettings()" class="w-full bg-indigo-600 text-white font-black py-4 rounded-xl">حفظ الإعدادات</button>
-                <button onclick="toggleSettings()" class="w-full text-slate-400 text-xs mt-2">إغلاق</button>
-                <button onclick="clearAllData()" class="w-full text-rose-500/30 text-[9px] mt-6">مسح السحاب بالكامل</button>
+                <div>
+                    <label class="text-[10px] text-slate-400 block mb-1">رابط المجموعة القريبة</label>
+                    <input type="text" id="groupLinkSoon" class="w-full modern-input p-3 rounded-xl text-sm outline-none">
+                </div>
+                <div>
+                    <label class="text-[10px] text-slate-400 block mb-1">رابط مجموعة الإجازة</label>
+                    <input type="text" id="groupLinkVacation" class="w-full modern-input p-3 rounded-xl text-sm outline-none">
+                </div>
+                <div>
+                    <label class="text-[10px] text-slate-400 block mb-1">رسالة الترحيب ({name})</label>
+                    <textarea id="welcomeTemplate" rows="4" class="w-full modern-input p-3 rounded-xl text-sm outline-none"></textarea>
+                </div>
+                <div>
+                    <label class="text-[10px] text-slate-400 block mb-1">رسالة اللينك ({name} و {link})</label>
+                    <textarea id="linkTemplate" rows="3" class="w-full modern-input p-3 rounded-xl text-sm outline-none"></textarea>
+                </div>
+                <button onclick="saveSettings()" class="w-full bg-indigo-600 text-white font-black py-4 rounded-xl">حفظ التغييرات</button>
+                <button onclick="toggleSettings()" class="w-full text-slate-400 text-xs">إغلاق</button>
             </div>
         </div>
     </div>
 
     <script>
-        // --- 1. Firebase Configuration (المطابقة لصورتك) ---
         const firebaseConfig = {
             apiKey: "AIzaSyC3GQccPFLVHFi8aVmJ3lmeC8UHRT_tNwQ",
             authDomain: "solom-feecf.firebaseapp.com",
@@ -98,137 +135,227 @@
         firebase.initializeApp(firebaseConfig);
         const db = firebase.database();
         const studentsRef = db.ref('students');
+        const settingsRef = db.ref('settings');
 
         let students = [];
         let currentTab = 'all';
         let hardwareFilter = 'all';
-        let settings = JSON.parse(localStorage.getItem('soloum_settings')) || {
-            groupLink: '',
-            welcomeTemplate: 'أهلاً يا {name}! مبروك قبولك 🎨',
-            linkTemplate: 'يا {name} دا لينك الجروب: {link}'
+        let editingAltId = null;
+        let appSettings = {
+            groupLinkSoon: '',
+            groupLinkVacation: '',
+            welcomeTemplate: 'أهلاً بك يا {name}، مبسوط بانضمامك للتدريب ان شاء الله تخرج منه وانت معاك المهارة بشكل كويس ومواكب لسوق العمل.. التدريب هيكون عباره عن مجموعتين (قريبة وإجازة)، شوف الانسب واكد معايا الحجز.',
+            linkTemplate: 'أهلاً يا {name}، ده لينك مجموعتك: {link}'
         };
 
-        // --- 2. Realtime Sync ---
-        studentsRef.on('value', (snapshot) => {
-            const data = snapshot.val();
-            students = data ? Object.keys(data).map(key => ({ id: key, ...data[key] })) : [];
-            document.getElementById('syncStatus').innerText = "متصل ومزامن ✅";
-            render();
+        settingsRef.on('value', snapshot => {
+            if (snapshot.val()) appSettings = { ...appSettings, ...snapshot.val() };
+            document.getElementById('groupLinkSoon').value = appSettings.groupLinkSoon;
+            document.getElementById('groupLinkVacation').value = appSettings.groupLinkVacation;
+            document.getElementById('welcomeTemplate').value = appSettings.welcomeTemplate;
+            document.getElementById('linkTemplate').value = appSettings.linkTemplate;
         });
 
-        window.processPaste = () => {
-            const raw = document.getElementById('smartPaste').value;
-            if (!raw.trim()) return;
-            try {
-                const nameMatch = raw.match(/الاسم؟\s*(?:\*)?\s*([\s\S]*?)\s*(?:الكلية|رقم|$)/i);
-                const phoneMatch = raw.match(/رقم التليفون\s*\(?\s*واتساب\s*\)?\s*(?:\*)?\s*([\s\S]*?)\s*(?:هل|$)/i);
-                const laptopMatch = raw.match(/جهاز لابتوب؟\s*(?:\*)?\s*(نعم|لا)/i);
-                
-                const name = nameMatch ? nameMatch[1].trim().split('\n')[0] : "متدرب جديد";
-                let phone = phoneMatch ? phoneMatch[1].trim().replace(/\D/g, '') : "";
-                if (phone.startsWith('0') && phone.length === 11) phone = '2' + phone;
+        studentsRef.on('value', snapshot => {
+            const data = snapshot.val();
+            students = data ? Object.keys(data).map(key => ({ id: key, ...data[key] })) : [];
+            document.getElementById('syncStatus').innerText = 'متصل سحابياً ⚡';
+            renderStudents();
+        });
 
-                studentsRef.push({
-                    name, phone,
-                    hasLaptop: laptopMatch ? (laptopMatch[1].trim() === "نعم") : false,
-                    timing: '', sent: false, createdAt: Date.now()
-                });
-                document.getElementById('smartPaste').value = '';
-            } catch (e) { alert("تأكدي من النص المنسوخ"); }
-        };
+        function processPaste() {
+            const text = document.getElementById('smartPaste').value.trim();
+            if (!text) return;
+            const lines = text.split('\n');
+            const name = lines[0].trim();
+            const phoneLine = lines.find(l => l.match(/01[0125]\d{8}/));
+            const phone = phoneLine ? phoneLine.match(/01[0125]\d{8}/)[0] : 'غير مسجل';
+            const hasLaptop = text.includes('لدي لابتوب') || text.toLowerCase().includes('yes') || text.includes('نعم');
+            
+            let group = 'unassigned'; 
+            if (text.includes('إجازة') || text.includes('اجازه')) group = 'vacation';
+            else if (text.includes('قريبة') || text.includes('قريبه')) group = 'soon';
 
-        window.render = () => {
+            const newStudent = {
+                name,
+                phone: phone.replace(/\s/g, ''),
+                hasLaptop,
+                altHardware: hasLaptop ? '' : 'لم يحدد',
+                group,
+                paid: false,
+                timestamp: Date.now()
+            };
+
+            studentsRef.push(newStudent);
+            document.getElementById('smartPaste').value = '';
+        }
+
+        function renderStudents() {
             const container = document.getElementById('studentsContainer');
-            const empty = document.getElementById('emptyState');
-            container.innerHTML = '';
-
-            const filtered = students.filter(s => {
-                let tMatch = (currentTab === 'all' || s.timing === currentTab);
-                let hMatch = (hardwareFilter === 'all' || (hardwareFilter === 'yes' ? s.hasLaptop : !s.hasLaptop));
-                return tMatch && hMatch;
-            });
-
+            const search = document.getElementById('searchInput').value.toLowerCase();
+            
+            // Update Tab Counts
             document.getElementById('count-all').innerText = students.length;
-            document.getElementById('count-now').innerText = students.filter(s => s.timing === 'now').length;
-            document.getElementById('count-later').innerText = students.filter(s => s.timing === 'later').length;
+            document.getElementById('count-soon').innerText = students.filter(s => s.group === 'soon').length;
+            document.getElementById('count-vacation').innerText = students.filter(s => s.group === 'vacation').length;
             document.getElementById('stat-laptop-yes').innerText = students.filter(s => s.hasLaptop).length;
             document.getElementById('stat-laptop-no').innerText = students.filter(s => !s.hasLaptop).length;
 
-            if (filtered.length === 0) empty.classList.remove('hidden');
-            else {
-                empty.classList.add('hidden');
-                filtered.sort((a,b)=>b.createdAt - a.createdAt).forEach(s => {
-                    const card = document.createElement('div');
-                    card.className = "student-card glass-card p-6 flex flex-col justify-between";
-                    card.innerHTML = `
+            let filtered = students.filter(s => {
+                const matchSearch = s.name.toLowerCase().includes(search) || s.phone.includes(search);
+                const matchTab = currentTab === 'all' || s.group === currentTab;
+                const matchHardware = hardwareFilter === 'all' || 
+                    (hardwareFilter === 'yes' && s.hasLaptop) || 
+                    (hardwareFilter === 'no' && !s.hasLaptop);
+                return matchSearch && matchTab && matchHardware;
+            });
+
+            container.innerHTML = '';
+            document.getElementById('emptyState').classList.toggle('hidden', filtered.length > 0);
+
+            filtered.sort((a,b) => b.timestamp - a.timestamp).forEach(s => {
+                const div = document.createElement('div');
+                div.className = `glass-card p-5 student-card border-r-4 ${s.paid ? 'border-emerald-500' : 'border-indigo-500'}`;
+                
+                const showWelcome = (currentTab === 'all');
+                const showPayBtn = (currentTab !== 'all');
+                
+                let groupLabel = "لم يحدد بعد";
+                if(s.group === 'soon') groupLabel = "المجموعة القريبة";
+                if(s.group === 'vacation') groupLabel = "مجموعة الإجازة";
+
+                div.innerHTML = `
+                    <div class="flex justify-between items-start mb-3">
                         <div>
-                            <div class="flex justify-between items-start mb-4">
-                                <h3 class="font-black text-white text-lg">${s.name}</h3>
-                                ${s.sent ? '<span class="text-[9px] text-emerald-400 font-black">وصلت 🫡</span>' : ''}
+                            <h3 class="font-bold text-white flex items-center gap-2 text-sm">
+                                ${s.name} 
+                                ${s.paid ? '<span class="paid-badge">تم الدفع ✓</span>' : ''}
+                            </h3>
+                            <div class="flex items-center gap-2 mt-1">
+                                <p class="text-[10px] text-slate-400">${s.phone}</p>
+                                <span class="text-[9px] px-2 py-0.5 rounded bg-white/5 text-slate-300 border border-white/5 cursor-pointer" onclick="changeStudentGroup('${s.id}')">
+                                    📍 ${groupLabel}
+                                </span>
                             </div>
-                            <p class="text-[10px] text-slate-500 mb-4">${s.hasLaptop ? '💻 لابتوب' : '📱 بديل'}</p>
-                            <select onchange="updateStudent('${s.id}', 'timing', this.value)" class="w-full bg-white/5 border border-white/10 p-3 rounded-xl text-xs font-bold mb-4 outline-none">
-                                <option value="" ${!s.timing ? 'selected' : ''}>📍 المجموعة</option>
-                                <option value="now" ${s.timing === 'now' ? 'selected' : ''}>الحالية</option>
-                                <option value="later" ${s.timing === 'later' ? 'selected' : ''}>الإجازة</option>
-                            </select>
                         </div>
-                        <div class="grid grid-cols-2 gap-2">
-                            <button onclick="sendMsg('${s.id}', 'welcome')" class="bg-indigo-600/20 hover:bg-indigo-600 py-3 rounded-xl text-[10px] font-black transition">1. ترحيب 👋</button>
-                            <button onclick="sendMsg('${s.id}', 'link')" class="bg-emerald-600/20 hover:bg-emerald-600 py-3 rounded-xl text-[10px] font-black transition">2. اللينك 🔗</button>
-                            <button onclick="deleteStudent('${s.id}')" class="col-span-2 mt-2 text-[9px] text-rose-500/40 hover:text-rose-500 transition">✕ حذف من النظام</button>
+                        <button onclick="deleteStudent('${s.id}')" class="opacity-20 hover:opacity-100 text-rose-400">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg>
+                        </button>
+                    </div>
+                    
+                    <div class="bg-white/5 rounded-lg p-2 text-[10px] border border-white/5 mb-4 flex justify-between items-center">
+                        <div>
+                            <span class="text-slate-500">الجهاز:</span>
+                            <span class="text-slate-200">
+                                ${s.hasLaptop ? '💻 لابتوب' : `📱 بديل: <span class="text-rose-400 cursor-pointer underline" onclick="openAltModal('${s.id}', '${s.altHardware}')">${s.altHardware || 'اضغطي لتحدد'}</span>`}
+                            </span>
                         </div>
-                    `;
-                    container.appendChild(card);
-                });
-            }
-        };
+                    </div>
 
-        window.updateStudent = (id, field, value) => studentsRef.child(id).update({ [field]: value });
+                    <div class="flex gap-2">
+                        ${showWelcome ? `
+                            <button onclick="sendWelcome('${s.id}')" class="btn-welcome flex-1 py-2.5 rounded-xl text-[10px] font-bold">
+                                ترحيب 👋
+                            </button>
+                        ` : ''}
+                        
+                        ${showPayBtn ? `
+                            <button onclick="confirmPayment('${s.id}', ${s.paid})" class="flex-1 py-2.5 rounded-xl text-[10px] font-bold transition ${s.paid ? 'bg-slate-700 text-slate-400' : 'bg-emerald-600/20 text-emerald-400 border border-emerald-500/30'}">
+                                ${s.paid ? 'إلغاء دفع' : 'تم الدفع 💰'}
+                            </button>
+                        ` : ''}
 
-        window.sendMsg = (id, type) => {
-            const s = students.find(x => x.id === id);
-            let msg = type === 'welcome' 
-                ? settings.welcomeTemplate.replace(/{name}/g, s.name)
-                : settings.linkTemplate.replace(/{name}/g, s.name).replace(/{link}/g, settings.groupLink);
+                        <button onclick="sendGroupLink('${s.id}')" class="flex-1 py-2.5 rounded-xl text-[10px] font-bold bg-indigo-600/20 text-indigo-400 border border-indigo-500/30">
+                            اللينك 🔗
+                        </button>
+                    </div>
+                `;
+                container.appendChild(div);
+            });
+        }
+
+        function changeStudentGroup(id) {
+            const current = students.find(x => x.id === id).group;
+            let next = 'soon';
+            if(current === 'soon') next = 'vacation';
+            if(current === 'vacation') next = 'unassigned';
             
-            if (type === 'link') updateStudent(id, 'sent', true);
-            window.open(`https://api.whatsapp.com/send?phone=${s.phone}&text=${encodeURIComponent(msg)}`, '_blank');
-        };
+            studentsRef.child(id).update({ group: next });
+        }
 
-        window.setTab = (t) => {
-            currentTab = t;
+        function sendWelcome(id) {
+            const s = students.find(x => x.id === id);
+            const message = appSettings.welcomeTemplate.replace('{name}', s.name);
+            window.open(`https://wa.me/2${s.phone}?text=${encodeURIComponent(message)}`, '_blank');
+        }
+
+        function sendGroupLink(id) {
+            const s = students.find(x => x.id === id);
+            if(s.group === 'unassigned') {
+                alert("برجاء تحديد مجموعة للطالب أولاً (بالضغط على كلمة لم يحدد)");
+                return;
+            }
+            const link = s.group === 'soon' ? appSettings.groupLinkSoon : appSettings.groupLinkVacation;
+            const message = appSettings.linkTemplate.replace('{name}', s.name).replace('{link}', link);
+            window.open(`https://wa.me/2${s.phone}?text=${encodeURIComponent(message)}`, '_blank');
+        }
+
+        function confirmPayment(id, currentStatus) {
+            if (!currentStatus) {
+                if (confirm("تأكيد حجز الطالب وتفعيل علامة الدفع؟")) {
+                    studentsRef.child(id).update({ paid: true });
+                }
+            } else {
+                studentsRef.child(id).update({ paid: false });
+            }
+        }
+
+        function deleteStudent(id) {
+            if (confirm("حذف الطالب نهائياً؟")) studentsRef.child(id).remove();
+        }
+
+        function setTab(tab) {
+            currentTab = tab;
             document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
-            document.getElementById('tab-' + t).classList.add('active');
-            render();
-        };
+            document.getElementById('tab-' + tab).classList.add('active');
+            renderStudents();
+        }
 
-        window.setHardwareFilter = (v) => {
-            hardwareFilter = (hardwareFilter === v) ? 'all' : v;
-            document.querySelectorAll('.stat-card').forEach(c => c.classList.remove('active'));
-            if (hardwareFilter !== 'all') document.getElementById('filter-' + hardwareFilter).classList.add('active');
-            render();
-        };
+        function setHardwareFilter(type) {
+            hardwareFilter = (hardwareFilter === type) ? 'all' : type;
+            document.getElementById('filter-yes').classList.toggle('border-indigo-500', hardwareFilter === 'yes');
+            document.getElementById('filter-no').classList.toggle('border-rose-500', hardwareFilter === 'no');
+            renderStudents();
+        }
 
-        window.toggleSettings = () => {
-            document.getElementById('settingsModal').classList.toggle('hidden');
-            document.getElementById('groupLink').value = settings.groupLink;
-            document.getElementById('welcomeTemplate').value = settings.welcomeTemplate;
-            document.getElementById('linkTemplate').value = settings.linkTemplate;
-        };
+        function openAltModal(id, currentVal) {
+            editingAltId = id;
+            document.getElementById('altInput').value = currentVal === 'لم يحدد' ? '' : currentVal;
+            document.getElementById('altModal').classList.remove('hidden');
+        }
 
-        window.saveSettings = () => {
-            settings = {
-                groupLink: document.getElementById('groupLink').value,
+        function closeAltModal() { document.getElementById('altModal').classList.add('hidden'); }
+
+        function saveAltHardware() {
+            const val = document.getElementById('altInput').value.trim();
+            if (editingAltId) studentsRef.child(editingAltId).update({ altHardware: val || 'لم يحدد' });
+            closeAltModal();
+        }
+
+        function toggleSettings() { document.getElementById('settingsModal').classList.toggle('hidden'); }
+
+        function saveSettings() {
+            const newSettings = {
+                groupLinkSoon: document.getElementById('groupLinkSoon').value,
+                groupLinkVacation: document.getElementById('groupLinkVacation').value,
                 welcomeTemplate: document.getElementById('welcomeTemplate').value,
                 linkTemplate: document.getElementById('linkTemplate').value
             };
-            localStorage.setItem('soloum_settings', JSON.stringify(settings));
+            settingsRef.set(newSettings);
             toggleSettings();
-        };
-
-        window.deleteStudent = (id) => { if(confirm("حذف الطالب؟")) studentsRef.child(id).remove(); };
-        window.clearAllData = () => { if(confirm("حذف كل السحاب؟")) studentsRef.remove(); };
+        }
     </script>
 </body>
 </html>
+
+
